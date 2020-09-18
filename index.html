@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="main.css">
+    <script src="main.js"></script>
+    <title>Sorting</title>
+</head>
+<body>
+    <div class="center header"><h1>Sorting</h1></div>
+    <div class="center header">
+        <div>
+            <p>Select a sorting method from the list and hit 'Sort'</p>
+        </div>
+        <div>
+            <select name="sorts" id="sorts">
+                <option value="quick">Quick Sort</option>
+                <option value="insertion">Insertion</option>
+                <option value="bubble">Bubble</option>
+                <option value="selection">Selection</option>
+            </select>
+            <button onclick="sort()">Sort</button>
+            <button onclick="refresh()">Refresh</button>
+        </div>
+        <div>
+            <label for="number">Number of items</label>
+            <input oninput="refresh()" type="range" min="25" max="200" value="25" class="slider" id="number">
+        </div>
+        <div>
+            <label for="speed">Speed</label>
+            <input onchange="updateSpeed()" type="range" min="1" max="100" value="50" class="slider" id="speed">
+        </div>
+    </div>
+    <div id="data" class="data"></div>
+</body>
+</html>
