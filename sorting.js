@@ -2,9 +2,10 @@ var data = [];
 var time;
 var defaultColor = 'cyan';
 var selectedColor = 'red';
-var minColor = 'purple';
+var specialColor = 'purple';
+var specialColor2 = 'black';
+var specialColor3 = 'orange';
 var confirmedColor = 'green';
-var badColor = 'black';
 var isSorting = false;
 var width;
 var number;
@@ -13,18 +14,6 @@ var windowWidth;
 var numberSelector;
 var speedSelector;
 var parent;
-
-var TESTARRAY = [
-	25,
-	123,
-	1423,
-	4,
-	52,
-	6,
-	354,
-	73,
-	7
-];
 
 window.onload = () => {
 	slider = document.getElementById('number');
@@ -52,7 +41,7 @@ function refresh() {
 	}
 }
 
-function sort() {
+async function sort() {
 	if (isSorting) {
 		return;
 	}
@@ -71,8 +60,10 @@ function sort() {
 			data = insertionSort(data);
 			break;
 		case 'quick':
-			data = quickSort(data);
-			console.log(data);
+			data = quickSort(data, 0, data.length);
+			break;
+		case 'merge':
+			data = mergeSort(data);
 			break;
 	}
 }
@@ -95,11 +86,7 @@ async function bubbleSort(data) {
 			changeOneStyle(data, i - 1, defaultColor);
 		}
 	}
-	if (isSorted(data)) {
-		changeAllStyles(data, confirmedColor);
-	} else {
-		changeAllStyles(data, badColor);
-	}
+	changeAllStyles(data, confirmedColor);
 	isSorting = false;
 	return data;
 }
@@ -118,7 +105,7 @@ async function selectionSort(data) {
 					changeOneStyle(data, minIndex, defaultColor);
 				}
 				minIndex = j;
-				changeOneStyle(data, minIndex, minColor);
+				changeOneStyle(data, minIndex, specialColor);
 				await sleep(time);
 			}
 			if (data[j] !== data[minIndex]) {
@@ -134,12 +121,7 @@ async function selectionSort(data) {
 		changeAllStyles(data, defaultColor);
 		await sleep(time);
 	}
-
-	if (isSorted(data)) {
-		changeAllStyles(data, confirmedColor);
-	} else {
-		changeAllStyles(data, badColor);
-	}
+	changeAllStyles(data, confirmedColor);
 	isSorting = false;
 	return data;
 }
@@ -171,20 +153,98 @@ async function insertionSort(data) {
 			await sleep(time);
 		}
 	}
-	if (isSorted(data)) {
-		changeAllStyles(data, confirmedColor);
-	} else {
-		changeAllStyles(data, badColor);
-	}
+	changeAllStyles(data, confirmedColor);
 	isSorting = false;
 	return data;
 }
 
-function quickSort(data) {
-	console.log('IMPLEMENT ME!');
-	data.forEach((element) => {
-		element.view.style.innerHTML = 'IMPLEMENT ME';
+async function mergeSort(data) {
+	let color;
+	if (data.length < 2) {
+		return data;
+	}
+
+	let leftArr;
+	let rightArr;
+	let half;
+
+	half = Math.ceil(data.length / 2);
+	leftArr = await mergeSort(data.splice(0, half));
+	color1 = Math.floor(Math.random() * 255 + 1);
+	color2 = Math.floor(Math.random() * 255 + 1);
+	color3 = Math.floor(Math.random() * 255 + 1);
+	leftArr.forEach((e) => {
+		e.view.style.background = `rgb(${color1}, ${color2}, ${color3})`;
 	});
+	await sleep(time);
+	rightArr = await mergeSort(data.splice(-half));
+	color1 = Math.random() * 255 + 1;
+	color2 = Math.random() * 255 + 1;
+	color3 = Math.random() * 255 + 1;
+	console.log(color);
+	rightArr.forEach((e) => {
+		e.view.style.background = `rgb(${color1}, ${color2}, ${color3})`;
+	});
+	await sleep(time);
+
+	let result = [],
+		i = 0,
+		j = 0;
+
+	while (i < leftArr.length && j < rightArr.length) {
+		if (leftArr[i].value < rightArr[j].value) {
+			result.push(leftArr[i++]);
+		} else {
+			result.push(rightArr[j++]);
+		}
+		updateRender(result);
+		await sleep(time);
+	}
+
+	let res = result.concat(leftArr.slice(i)).concat(rightArr.slice(j));
+	isSorting = false;
+	changeAllStyles(res, confirmedColor);
+	updateRender(res);
+	await sleep(time);
+	return res;
+}
+
+async function quickSort(data, start, end) {
+	for (i = start; i < end; i++) {
+		data[i].view.style.background = specialColor3;
+	}
+	if (start >= end) return data;
+	let pivotIndex = start;
+	let pivotValue = data[pivotIndex].value;
+	changeOneStyle(data, pivotIndex, specialColor);
+	await sleep(time);
+	let pointer = start;
+
+	for (let i = start; i < end; i++) {
+		if (i !== pivotIndex) {
+			changeOneStyle(data, i, selectedColor);
+			await sleep(time);
+		}
+		if (data[i].value < pivotValue) {
+			pointer++;
+			data = swap(data, i, pointer);
+			changeOneStyle(data, pointer, defaultColor);
+			await sleep(time);
+			updateRender(data);
+		}
+		if (i !== pivotIndex) {
+			changeOneStyle(data, i, defaultColor);
+			await sleep(time);
+		}
+	}
+	data = swap(data, start, pointer);
+	changeOneStyle(data, pointer, defaultColor);
+	await sleep(time);
+	updateRender(data);
+	data = await quickSort(data, start, pointer);
+	data = await quickSort(data, pointer + 1, end);
+	isSorting = false;
+	return data;
 }
 
 function remove(arr, index) {
@@ -240,6 +300,7 @@ function createRandomArray(length, min, max) {
 			{ value: value, view: view }
 		];
 	}
+	console.log(newArray);
 	return newArray;
 }
 

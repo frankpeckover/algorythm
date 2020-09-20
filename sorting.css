@@ -24,4 +24,5 @@ body {
 .element {
 	position: absolute;
 	background: cyan;
+	transition: left 500ms;
 }
