@@ -1,0 +1,74 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+button {
+	border: none;
+}
+
+button:hover {
+	cursor: pointer;
+}
+
+body {
+	overflow-x: hidden;
+}
+
+.center {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.fill {
+	width: 100%;
+	height: 100%;
+}
+
+.header {
+	width: 100vw;
+	height: 5vh;
+	background: cyan;
+	flex-direction: column;
+	z-index: 4;
+}
+
+.toolbox {
+	width: 100vw;
+	height: 15vh;
+	background: darkcyan;
+	flex-direction: column;
+	z-index: 5;
+}
+
+.selector {
+	width: 100px;
+	height: 30px;
+}
+
+.main {
+	position: relative;
+	height: 80vh;
+	width: 100vw;
+}
+
+.data {
+	position: relative;
+}
+
+.element {
+	position: absolute;
+	background: cyan;
+	transition: left 500ms;
+	z-index: 3;
+}
+
+#svg {
+	overflow: visible;
+	z-index: 2;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
