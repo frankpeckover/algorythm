@@ -15,18 +15,20 @@
             <button class="selector" onclick="setAlgo('searching')">Searching</button>
         </div>
         <div>
-            <p>Select a sorting method from the list and hit 'Sort'</p>
+            <p>Select a method from the list (input params if neccessary) and hit 'Run'</p>
         </div>
-        <div>
-            <select name="methods" id="methods">
+        <div class="center">
+            <select style="margin-right: 5px;" name="methods" id="methods">
                 <option value="quick">Quick</option>
                 <option value="merge">Merge</option>
                 <option value="insertion">Insertion</option>
                 <option value="bubble">Bubble</option>
                 <option value="selection">Selection</option>
             </select>
-            <button onclick="run()">Run</button>
-            <button onclick="refresh()">Refresh</button>
+            <button style="margin-right: 5px;" onclick="run()">Run</button>
+            <button style="margin-right: 5px;" onclick="refresh()">Refresh</button>
+            <input style="width: 70px; display: none;" id="origin" name="origin" type="number" placeholder="Origin"></input>
+            <input style="width: 70px; display: none;" id="target" name="target" type="number" placeholder="Target"></input>
         </div>
         <div>
             <label for="number">Number of items</label>

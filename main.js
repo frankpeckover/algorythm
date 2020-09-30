@@ -35,6 +35,8 @@ function setAlgo(string) {
 	algorithm = string;
 	switch (string) {
 		case 'sorting':
+			document.getElementById('origin').style.display = 'none';
+			document.getElementById('target').style.display = 'none';
 			methodSelector.innerHTML = `
 				<option value="quick">Quick</option>
 				<option value="merge">Merge</option>
@@ -49,9 +51,13 @@ function setAlgo(string) {
 			methodSelector.innerHTML = `
 				<option value="depth">Depth First</option>
 				<option value="breadth">Breadth First</option>`;
+			document.getElementById('origin').style.display = 'flex';
+			document.getElementById('target').style.display = 'flex';
 			numberSelector.min = 5;
 			numberSelector.max = 50;
 			numberSelector.value = 10;
+			originInput = document.getElementById('origin');
+			targetInput = document.getElementById('target');
 			break;
 	}
 	refresh();
@@ -111,11 +117,11 @@ async function run() {
 		case 'searching':
 			switch (func) {
 				case 'depth':
-					data = depthFirst(data, origin, target);
+					data = depthFirst(data, parseInt(originInput.value), parseInt(targetInput.value));
 					break;
 
 				case 'breadth':
-					data = breadthFirst(data, origin, target);
+					data = breadthFirst(data, parseInt(originInput.value), parseInt(targetInput.value));
 					break;
 			}
 			break;
@@ -432,8 +438,8 @@ function generateGraph(numNodes) {
 		height = 50;
 		view.style.height = `${height}px`;
 		view.style.borderRadius = `50%`;
-		view.style.left = `${Math.floor(Math.random() * window.innerWidth - width * 2) + width * 2}px`;
-		view.style.top = `${Math.floor(Math.random() * window.innerHeight * 0.8)}px`;
+		view.style.left = `${Math.floor(Math.random() * window.innerWidth - width * 2) + width}px`;
+		view.style.top = `${Math.floor(Math.random() * window.innerHeight * 0.75)}px`;
 		view.classList = 'element center';
 		view.innerHTML = i;
 		let node = { links: [], visited: false, view: view };
