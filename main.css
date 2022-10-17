@@ -58,11 +58,24 @@ body {
 	position: relative;
 }
 
-.element {
+.sortingElement {
 	position: absolute;
 	background: cyan;
 	transition: left 500ms;
 	z-index: 3;
+}
+
+.searchingElement {
+	position: absolute;
+	background: cyan;
+	z-index: 3;
+	transition: all 1s;
+}
+
+.mazeElement {
+	position: absolute;
+	z-index: 3;
+	border: black 1px solid;
 }
 
 #svg {
