@@ -16,6 +16,20 @@ body {
 	overflow-x: hidden;
 }
 
+select {
+	width: 100%;
+	min-width: 15ch;
+	max-width: 30ch;
+	border: 1px solid var(#62186B);
+	border-radius: 0.25em;
+	padding: 0.25em 0.5em;
+	font-size: 1.25rem;
+	cursor: pointer;
+	line-height: 1.1;
+	background-color: #fff;
+	background-image: linear-gradient(to top, #f9f9f9, #fff 33%);
+  }
+
 .center {
 	display: flex;
 	align-items: center;
@@ -30,52 +44,110 @@ body {
 .header {
 	width: 100vw;
 	height: 5vh;
-	background: cyan;
-	flex-direction: column;
+	background: rgb(22,22,22);
 	z-index: 4;
+	color: #47313D;
+}
+
+.menu {
+	background: rgb(22,22,22);
+}
+
+.menu button{
+	margin: 5px 5px;
+	padding: 5px 5px;
+	border-radius: 5px;
 }
 
 .toolbox {
-	width: 100vw;
-	height: 15vh;
-	background: darkcyan;
-	flex-direction: column;
+	position: absolute;
 	z-index: 5;
+	color: white;
+	left: 25%;
+	top: 88%;
 }
 
-.selector {
-	width: 100px;
-	height: 30px;
+.toolbox button {
+	padding: 0.7em 1.7em;
+	border-radius:0.2em;
+	font-weight:400;
+	color:#FFFFFF;
+	background-color: #8C6183;
+	box-shadow:inset 0 -0.6em 1em -0.35em rgba(0,0,0,0.17),inset 0 0.6em 2em -0.3em rgba(255,255,255,0.15),inset 0 0 0em 0.05em rgba(255,255,255,0.12);
+	text-align:center;
+}
+	
+.toolbox button:active {
+	box-shadow:inset 0 0.6em 2em -0.3em rgba(0,0,0,0.15),inset 0 0 0em 0.05em rgba(255,255,255,0.12);
+}
+
+.toolbox * {
+	margin: 0 10px;
+}
+
+.slider {
+	width: 200px;
+	appearance: none;
+}
+
+.slider::-webkit-slider-runnable-track {
+	width: 100%;
+	height: 1px;
+}
+
+.slider::-webkit-slider-thumb {
+	justify-self: center;
+	height: 26px;
+	width: 10px;
+	border-radius: 22px;
+	appearance: none;
+	background-color: white;
+	margin-top: -13px;
+	cursor: pointer;
+}
+
+.slider-label {
+	position: relative;
+	display: block;
+	text-align: center;
+	font-size: 2em;
 }
 
 .main {
 	position: relative;
-	height: 80vh;
-	width: 100vw;
+	padding: 0 5%;
+	height: 100vh;
+	background: linear-gradient(180deg,#4c1bbe 0%,#62186B 100%) no-repeat;
 }
 
 .data {
 	position: relative;
+	height: 100%;
 }
 
-.sortingElement {
-	position: absolute;
-	background: cyan;
-	transition: left 500ms;
-	z-index: 3;
-}
-
-.searchingElement {
-	position: absolute;
-	background: cyan;
-	z-index: 3;
-	transition: all 1s;
-}
-
-.mazeElement {
+.element {
 	position: absolute;
 	z-index: 3;
 	border: black 1px solid;
+}
+
+.sortingElement {
+	background: #8C6183;
+	transition: left 500ms;
+}
+
+.searchingElement {
+	display: block;
+	background: #8C6183;
+	transition: all 1s;
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+}
+
+.mazeElement {
+	border: black 1px solid;
+	transition: all 500ms;
 }
 
 #svg {
@@ -84,4 +156,6 @@ body {
 	position: absolute;
 	top: 0;
 	left: 0;
+	padding: 0 5%;
+	margin-bottom: 10%;
 }

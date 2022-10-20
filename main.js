@@ -1,48 +1,59 @@
 var data = [];
-var time;
+var timeToPause;
+var maximumPause = 500;
 
-var defaultColor = 'cyan';
+var defaultColor = '#8C6183';
 var selectedColor = 'red';
 var specialColor = 'purple';
 var specialColor2 = 'black';
 var specialColor3 = 'orange';
 var confirmedColor = 'green';
 
-var isRunning = false;
-var width;
-var numberSelector;
-var windowWidth;
-var windowHeight;
+var numberSlider;
 var methodSelector;
-var speedSelector;
+var speedSlider;
+
+var numberLabel;
+var speedLabel;
+
 var dataDiv;
+var dataDivWidth;
+var dataDivHeight;
+
 var svg;
 var algorithm = `sorting`;
 //#region main
 
 window.onload = () => {
-	numberSelector = document.getElementById('number');
-	windowWidth = window.innerWidth;
-	windowHeight = window.innerHeight;
+	numberSlider = document.getElementById('number');
+	numberLabel = document.getElementById("numberLabel");
 	methodSelector = document.getElementById('methods');
-	speedSelector = document.getElementById('speed');
-	dataDiv = document.getElementById('data');
+	speedSlider = document.getElementById('speed');
+	speedLabel = document.getElementById("speedLabel");
 	svg = document.getElementById('svg');
+	dataDiv = document.getElementById('data');
+
+	dataDivWidth = dataDiv.offsetWidth;
+	dataDivHeight = dataDiv.offsetHeight;
+
+	speedSlider.addEventListener('input', function() {
+		showSliderValue(speedLabel, speedSlider)
+	}, false)
+	showSliderValue(speedLabel, speedSlider)
+	numberSlider.addEventListener('input', function() {
+		showSliderValue(numberLabel, numberSlider)}
+		, false)
+	showSliderValue(numberLabel, numberSlider)
+
 	updateSpeed();
 	refresh();
 };
 
-function getRandomInt(min, max) {
-	min = Math.ceil(min);
-	max = Math.floor(max);
-	return Math.floor(Math.random() * (max - min) + min)
+function showSliderValue(labelToChange, rangeSlider) {
+	labelToChange.innerHTML = rangeSlider.value;
 }
 
-function shuffle(array) {
-	array.sort(() => Math.random() - 0.5);
-  }
-
-function setAlgo(string) {
+function setAlgorithm(string) {
 	algorithm = string;
 	switch (string) {
 		case 'sorting':
@@ -52,71 +63,63 @@ function setAlgo(string) {
 				<option value="insertion">Insertion</option>
 				<option value="bubble">Bubble</option>
 				<option value="selection">Selection</option>`;
-			numberSelector.min = 25;
-			numberSelector.max = 200;
-			numberSelector.value = 25;
+			numberSlider.min = 25;
+			numberSlider.max = 200;
+			numberSlider.value = 25;
 			break;
 		case 'searching':
 			methodSelector.innerHTML = `
 				<option value="depth">Depth First</option>
 				<option value="breadth">Breadth First</option>`;
-			numberSelector.min = 5;
-			numberSelector.max = 50;
-			numberSelector.value = 10;
+			numberSlider.min = 5;
+			numberSlider.max = 25;
+			numberSlider.value = 10;
 			break;
 		case 'maze':
 			methodSelector.innerHTML = `
-				<option value="depth">Depth First</option>
-				<option value="breadth">Breadth First</option>`;
-			numberSelector.min = 5;
-			numberSelector.max = 50;
-			numberSelector.value = 10;
+				<option value="build">Build Maze</option>
+				<option value="solveBreadth">Solve Breadth First</option>;
+				<option value="solveDepth">Solve Depth First</option>`;
+			numberSlider.min = 100;
+			numberSlider.max = 1000;
+			numberSlider.value = 250;
 			break;
 	}
 	refresh();
 }
 
 function updateSpeed() {
-	time = (100 - speedSelector.value) / 100;
-	time *= 2500;
-	time += 1;
+	timeToPause = (1 - (speedSlider.value / 100)) * maximumPause;
 }
 
 function refresh() {
 	clearScreen();
-	if (!isRunning) {
-		switch (algorithm) {
-			case 'sorting':
-				width = (windowWidth - numberSelector.value) / numberSelector.value;
-				data = createRandomArray(numberSelector.value, 1, 100);
-				initialRender(data);
-				updateRender(data);
-				break;
-			case 'searching':
-				data = createConnections(generateGraph(numberSelector.value));
-				initialRender(data);
-				addEdges(data);
-				origin = undefined;
-				target = undefined;
-				break;
-			case 'maze':
-				data = buildGrid(35, 55);
-				data.forEach(arr => {
-					initialRender(arr)
-				});
-				//generateMaze(data, data[0][0])
-				generateMaze(data, data[Math.floor(data.length / 2)][Math.floor(data[0].length / 2)])
-				traverseMaze(data, data[0][0], data[Math.floor(data.length / 2)][Math.floor(data[0].length / 2)])
-				break;
-		}
+	switch (algorithm) {
+		case 'sorting':
+			width = (dataDivWidth - numberSlider.value) / numberSlider.value;
+			data = createRandomArray(numberSlider.value, 1, 100);
+			initialRender(data);
+			updateRender(data);
+			break;
+		case 'searching':
+			data = generateGraph(numberSlider.value);
+			data = createConnections(data);
+			initialRender(data);
+			addEdges(data);
+			origin = 1;
+			target = data[data.length - 1];
+			break;
+		case 'maze':
+			squares = Math.floor(Math.sqrt(numberSlider.value));
+			data = buildGrid(squares, squares);
+			data.forEach(arr => {
+				initialRender(arr)
+			});
+			break;
 	}
 }
 
 async function run() {
-	if (isRunning) {
-		return;
-	}
-	isRunning = true;
 	let func = methodSelector.options[methodSelector.selectedIndex].value;
 	switch (algorithm) {
 		case 'sorting':
@@ -151,13 +154,28 @@ async function run() {
 					break;
 			}
 			break;
-	}
-	isRunning = false;
+		case 'maze':
+			refresh()
+			switch (func) {
+				case 'build':
+					generateMaze(data, data[Math.floor(data.length / 2)][Math.floor(data[0].length / 2)], true)
+					break;
+				case 'solveBreadth':
+					generateMaze(data, data[Math.floor(data.length / 2)][Math.floor(data[0].length / 2)], false)
+					traverseBreadthFirst(data[0][0], data[data.length - 1][data[0].length - 1]);
+					break;
+				case 'solveDepth':
+					generateMaze(data, data[Math.floor(data.length / 2)][Math.floor(data[0].length / 2)], false)
+					traverseDepthFirst(data[0][0], data[data.length - 1][data[0].length - 1]);
+					break;
+				}
+			}
+
 }
 
 function updateRender(arr) {
 	let totalWidth = arr.length * width;
-	let remainderWidth = windowWidth - totalWidth;
+	let remainderWidth = dataDivWidth - totalWidth;
 	for (let i = 0; i < arr.length; i++) {
 		arr[i].view.style.left = `${i * width + remainderWidth / 2}px`;
 	}

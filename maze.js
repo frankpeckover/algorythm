@@ -1,8 +1,13 @@
-aspect = 0.75
+var aspect = 0.75
+var totalRows;
+var totalCols;
+var grid;
 
 function buildGrid(rows, cols) {
-    cellWidth = (windowWidth * aspect) / cols;
-    cellHeight = (windowHeight * aspect) / rows;
+    totalRows = rows;
+    totalCols = cols;
+    cellWidth = (dataDivHeight * aspect) / cols;
+    cellHeight = (dataDivHeight * aspect) / rows;
     var arr = [];
     for (let row = 0; row <= rows - 1; row++){
         arr[row] = [];
@@ -18,13 +23,13 @@ function createCell(row, col, cellWidth, cellHeight) {
     view.style.width = `${cellWidth}px`;
     view.style.height = `${cellHeight}px`;
 
-    view.style.left = `${col * cellWidth}px`;
-    view.style.top = `${row * cellHeight}px`;
+    view.style.left = `${(col * cellWidth) + ((dataDivWidth - (totalCols * cellWidth)) / 2)}px`;
+    view.style.top = `${(row * cellHeight)}px`;
     view.style.fontSize = '0.5em';
 
-    view.classList = 'mazeElement center';
+    view.classList = 'mazeElement element center';
     view.onclick = function() {
-        this.style.background = 'black';
+        console.log(data[row][col]);
     }
 
     cell = {visited: false, links: [], row: row, col: col, view: view}
@@ -77,47 +82,85 @@ function removeWall(currentCell, nextCell) {
     }
 }
 
-async function generateMaze(grid, origin) {
+function setVisited(grid, value) {
+    grid.forEach(row => {
+        row.forEach(cell => {
+            cell.visited = value;
+        })
+    })
+}
+
+async function generateMaze(grid, origin, simulating) {
     let stack = [ origin ];
-	grid[origin.row][origin.col].visited = true;
 
 	while (stack.length > 0) {
 		let currentCell = stack.pop();
-		//grid[currentCell.row][currentCell.col].view.style.background = specialColor;
 		currentCell.visited = true;
-        //await sleep(time/100000)
-		currentCell.links = getUnvisitedNeighbours(grid, currentCell);
-        if (currentCell.links.length) {
-            let random = Math.floor(Math.random() * currentCell.links.length);
-            nextCell = currentCell.links[random]
+        if (simulating) {
+            await sleep(timeToPause/100)
+        }
+		let unvisitedNeighbours = getUnvisitedNeighbours(grid, currentCell);
+        if (unvisitedNeighbours.length) {
+            let random = Math.floor(Math.random() * unvisitedNeighbours.length);
+            nextCell = unvisitedNeighbours[random]
             stack.push(currentCell);
             stack.push(nextCell)
             removeWall(currentCell, nextCell);
+            currentCell.links.push(nextCell);
+            nextCell.links.push(currentCell);
         }
 	}
+    setVisited(grid, false);
 	return false;
 }
 
-async function traverseMaze(grid, origin, target) {
+async function traverseDepthFirst(origin, target) {
     let stack = [ origin ];
+    target.view.style.background = 'red';
+    
 
 	while (stack.length > 0) {
 		let currentCell = stack.pop();
-		currentCell.view.style.background = specialColor;
-		//await sleep(time);
+        currentCell.view.style.background = specialColor3;
+		await sleep(timeToPause);
 		if (currentCell === target) {
 			alert(`Found index: ${target} from ${origin}`);
 			return true;
 		}
 		currentCell.visited = true;
-	    currentCell.links.forEach(link => {
-			if (link.visited === false) {
-				stack.push(link);
-			}
-		});
-		//await sleep(time);
-        currentCell.style.background = 'none'
+        if (currentCell.links.length) {
+            currentCell.links.forEach(link => {
+                if (link.visited === false) {
+                    stack.push(link);
+                }
+            });
+        }
+        currentCell.view.style.background = defaultColor;
 	}
     alert(`could not find end`)
+	return false;
+}
+
+async function traverseBreadthFirst(origin, target) {
+	let queue = [ origin ];
+	origin.visited = true;
+
+	while (queue.length > 0) {
+		let currentCell = queue.shift();
+		origin.view.style.zIndex = 100;
+        currentCell.view.style.background = specialColor3;
+		await sleep(timeToPause);
+		if (currentCell === target) {
+			alert(`Found index: ${target} from ${origin}`);
+			return true;
+		}
+		currentCell.visited = true;
+		currentCell.links.forEach((childIndex) => {
+			if (childIndex.visited === false) {
+				queue.push(childIndex);
+			}
+		});
+	}
+	alert(`No path to index: ${target} from ${origin}`);
 	return false;
 }

@@ -2,8 +2,8 @@ var origin;
 var target;
 var toggleSearchable = 'origin';
 
-var width = 50;
-var height = 50;
+width = 50
+height = 50
 
 function addEdges(nodes) {
 	svg.innerHTML = `
@@ -14,13 +14,18 @@ function addEdges(nodes) {
 	</defs>`;
 	nodes.forEach((node) => {
 		node.links.forEach((link) => {
-			drawLine(
-				parseInt(node.view.style.left.split('p')[0]) + parseInt(node.view.style.width.split('p')[0]) / 2,
-				parseInt(node.view.style.top.split('p')[0]) + parseInt(node.view.style.height.split('p')[0]) / 2,
-				parseInt(nodes[link].view.style.left.split('p')[0]) +
-					parseInt(nodes[link].view.style.width.split('p')[0]) / 2,
-				parseInt(nodes[link].view.style.top.split('p')[0]) +
-					parseInt(nodes[link].view.style.height.split('p')[0]) / 2
+
+			nodeLeft = parseInt(node.view.style.left);
+			nodeTop = parseInt(node.view.style.top);
+			nodeWidth = parseInt(node.view.offsetWidth)
+			nodeHeight = parseInt(node.view.offsetHeight)
+			
+			linkLeft = parseInt(nodes[link].view.style.left);
+			linkTop = parseInt(nodes[link].view.style.top);
+			linkWidth = parseInt(nodes[link].view.offsetWidth)
+			linkHeight = parseInt(nodes[link].view.offsetHeight)
+
+			drawLine(nodeLeft + (nodeWidth / 2), nodeTop + (nodeHeight / 2), linkLeft + (linkWidth / 2), linkTop + (linkHeight / 2)
 			);
 		});
 	});
@@ -39,12 +44,9 @@ function generateGraph(numNodes) {
 	for (let i = 0; i < numNodes; i++) {
 		let view = document.createElement('button');
         view.onclick = function() {setSearchable(i)};
-		view.style.width = `${width}px`;
-		view.style.height = `${height}px`;
-		view.style.borderRadius = `50%`;
-		view.style.left = `${Math.floor(Math.random() * window.innerWidth * 0.75)}px`;
-		view.style.top = `${Math.floor(Math.random() * window.innerHeight * 0.75)}px`;
-		view.classList = 'searchingElement center';
+		view.style.left = `${Math.floor(Math.random() * dataDivWidth * 0.75)}px`;
+		view.style.top = `${Math.floor(Math.random() * dataDivHeight * 0.75)}px`;
+		view.classList = 'searchingElement element center';
 		view.innerHTML = i;
 		let node = { links: [], visited: false, view: view };
 		newArray = [ ...newArray, node ];
@@ -63,7 +65,7 @@ function createConnections(arr) {
 			}
 		}
 	});
-	return newArray;
+	return newArray
 }
 
 function setSearchable(i) {
@@ -99,7 +101,6 @@ async function breadthFirst(graph, origin, target) {
 			${graph[index].view.offsetTop - graph[origin].view.offsetTop}px)`;
 		await sleep(1000);
 		if (index === target) {
-			isRunning = false;
 			alert(`Found index: ${target} from ${origin}`);
 			return true;
 		}
@@ -109,10 +110,9 @@ async function breadthFirst(graph, origin, target) {
 				queue.push(childIndex);
 			}
 		});
-		await sleep(time);
+		await sleep(timeToPause);
 	}
 	alert(`No path to index: ${target} from ${origin}`);
-	isRunning = false;
 	return false;
 }
 
@@ -129,7 +129,6 @@ async function depthFirst(graph, origin, target) {
 		await sleep(1000);
 		if (index === target) {
 			alert(`Found index: ${target} from ${origin}`);
-			isRunning = false;
 			return true;
 		}
 		graph[index].visited = true;
@@ -138,10 +137,9 @@ async function depthFirst(graph, origin, target) {
 				stack.push(child);
 			}
 		});
-		await sleep(time);
+		await sleep(timeToPause);
 	}
 	alert(`No path to index: ${target} from ${origin}`);
-	isRunning = false;
 	return false;
 }
 
