@@ -11,7 +11,7 @@ async function bubbleSort(arr) {
 			if (arr[i].value < arr[i - 1].value) {
 				swapped = true;
 				arr = swap(arr, i, i - 1);
-				updateRender(arr);
+				updateSortingRender(arr);
 				await sleep(timeToPauseToPause);
 			}
 			changeOneStyle(arr, i, defaultColor);
@@ -46,7 +46,7 @@ async function selectionSort(arr) {
 		}
 		if (minIndex !== i) {
 			arr = swap(arr, i, minIndex);
-			updateRender(arr);
+			updateSortingRender(arr);
 			await sleep(timeToPause);
 		}
 		changeAllStyles(arr, defaultColor);
@@ -68,13 +68,13 @@ async function insertionSort(arr) {
 			await sleep(timeToPause);
 			if (removed.value > arr[j].value) {
 				arr = insert(arr, removed, j + 1);
-				updateRender(arr);
+				updateSortingRender(arr);
 				changeOneStyle(arr, j + 1, defaultColor);
 				changeOneStyle(arr, j, defaultColor);
 				break;
 			} else if (j === 0) {
 				arr = insert(arr, removed, 0);
-				updateRender(arr);
+				updateSortingRender(arr);
 				changeOneStyle(arr, j + 1, defaultColor);
 				changeOneStyle(arr, j, defaultColor);
 				break;
@@ -88,7 +88,6 @@ async function insertionSort(arr) {
 }
 
 async function mergeSort(arr) {
-	let color;
 	if (arr.length < 2) {
 		return arr;
 	}
@@ -125,13 +124,13 @@ async function mergeSort(arr) {
 		} else {
 			result.push(rightArr[j++]);
 		}
-		updateRender(result);
+		updateSortingRender(result);
 		await sleep(timeToPause);
 	}
 
 	let res = result.concat(leftArr.slice(i)).concat(rightArr.slice(j));
 	changeAllStyles(res, confirmedColor);
-	updateRender(res);
+	updateSortingRender(res);
 	await sleep(timeToPause);
 	return res;
 }
@@ -157,7 +156,7 @@ async function quickSort(arr, start, end) {
 			arr = swap(arr, i, pointer);
 			changeOneStyle(arr, pointer, defaultColor);
 			await sleep(timeToPause);
-			updateRender(arr);
+			updateSortingRender(arr);
 		}
 		if (i !== pivotIndex) {
 			changeOneStyle(arr, i, defaultColor);
@@ -167,7 +166,7 @@ async function quickSort(arr, start, end) {
 	arr = swap(arr, start, pointer);
 	changeOneStyle(arr, pointer, defaultColor);
 	await sleep(timeToPause);
-	updateRender(arr);
+	updateSortingRender(arr);
 	arr = await quickSort(arr, start, pointer);
 	arr = await quickSort(arr, pointer + 1, end);
 	if (isSorted(arr)) {

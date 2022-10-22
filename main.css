@@ -116,7 +116,7 @@ select {
 .main {
 	position: relative;
 	padding: 0 5%;
-	height: 100vh;
+	height: 95vh;
 	background: linear-gradient(180deg,#4c1bbe 0%,#62186B 100%) no-repeat;
 }
 
@@ -148,6 +148,15 @@ select {
 .mazeElement {
 	border: black 1px solid;
 	transition: all 500ms;
+}
+
+.canvas {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	margin: 0 5%;
+	top: 0px;
+	left: 0px;
 }
 
 #svg {

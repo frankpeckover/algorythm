@@ -1,4 +1,7 @@
-var data = [];
+var sortingData = [];
+var gridData = [];
+var searchingData = [];
+
 var timeToPause;
 var maximumPause = 500;
 
@@ -9,11 +12,11 @@ var specialColor2 = 'black';
 var specialColor3 = 'orange';
 var confirmedColor = 'green';
 
-var numberSlider;
+var itemsSlider;
 var methodSelector;
 var speedSlider;
 
-var numberLabel;
+var itemsLabel;
 var speedLabel;
 
 var dataDiv;
@@ -21,103 +24,122 @@ var dataDivWidth;
 var dataDivHeight;
 
 var svg;
-var algorithm = `sorting`;
-//#region main
+var canvas;
+var ctx;
+
+var algorithm;
 
 window.onload = () => {
-	numberSlider = document.getElementById('number');
-	numberLabel = document.getElementById("numberLabel");
+	setElements();
+	fitCanvas();
+	updateSpeed();
+};
+
+function setElements() {
+	itemsSlider = document.getElementById('number');
+	itemsLabel = document.getElementById("numberLabel");
 	methodSelector = document.getElementById('methods');
 	speedSlider = document.getElementById('speed');
 	speedLabel = document.getElementById("speedLabel");
 	svg = document.getElementById('svg');
 	dataDiv = document.getElementById('data');
+	canvas = document.getElementById("canvas");
+	ctx = canvas.getContext("2d");
 
 	dataDivWidth = dataDiv.offsetWidth;
 	dataDivHeight = dataDiv.offsetHeight;
+}
 
-	speedSlider.addEventListener('input', function() {
-		showSliderValue(speedLabel, speedSlider)
-	}, false)
-	showSliderValue(speedLabel, speedSlider)
-	numberSlider.addEventListener('input', function() {
-		showSliderValue(numberLabel, numberSlider)}
-		, false)
-	showSliderValue(numberLabel, numberSlider)
-
-	updateSpeed();
-	refresh();
-};
+function fitCanvas() {
+	canvas.width = canvas.offsetWidth;
+	canvas.left = canvas.offsetLeft;
+	canvas.top = canvas.offsetTop;
+	canvas.height = canvas.offsetHeight;
+}
 
 function showSliderValue(labelToChange, rangeSlider) {
 	labelToChange.innerHTML = rangeSlider.value;
 }
 
-function setAlgorithm(string) {
-	algorithm = string;
-	switch (string) {
-		case 'sorting':
-			methodSelector.innerHTML = `
-				<option value="quick">Quick</option>
-				<option value="merge">Merge</option>
-				<option value="insertion">Insertion</option>
-				<option value="bubble">Bubble</option>
-				<option value="selection">Selection</option>`;
-			numberSlider.min = 25;
-			numberSlider.max = 200;
-			numberSlider.value = 25;
-			break;
-		case 'searching':
-			methodSelector.innerHTML = `
-				<option value="depth">Depth First</option>
-				<option value="breadth">Breadth First</option>`;
-			numberSlider.min = 5;
-			numberSlider.max = 25;
-			numberSlider.value = 10;
-			break;
-		case 'maze':
-			methodSelector.innerHTML = `
-				<option value="build">Build Maze</option>
-				<option value="solveBreadth">Solve Breadth First</option>;
-				<option value="solveDepth">Solve Depth First</option>`;
-			numberSlider.min = 100;
-			numberSlider.max = 1000;
-			numberSlider.value = 250;
-			break;
+function setItemSliderValues(min, max) {
+	itemsSlider.min = min;
+	itemsSlider.max = max;
+	if (itemsSlider.value < min || itemsSlider.value > max) {
+		itemsSlider.value = min;
 	}
-	refresh();
+	showSliderValue(itemsLabel, itemsSlider);
+}
+
+function initialiseSorting(items) {
+	console.log(items)
+	clearScreen();
+	algorithm = 'sorting';
+	methodSelector.innerHTML = ` 
+		<option value="quick">Quick</option>
+		<option value="merge">Merge</option>
+		<option value="insertion">Insertion</option>
+		<option value="bubble">Bubble</option>
+		<option value="selection">Selection</option>`;
+	setItemSliderValues(25, 250);
+
+	width = (dataDivWidth - items) / items;
+	sortingData = createRandomArray(items, 1, 100);
+	initialRender(sortingData);
+	updateSortingRender(sortingData);
+}
+
+function initialiseSearching(items) {
+	clearScreen();
+	algorithm = 'searching';
+	methodSelector.innerHTML = `
+		<option value="depth">Depth First</option>
+		<option value="breadth">Breadth First</option>`;
+	setItemSliderValues(5, 25)
+
+	searchingData = generateGraph(items);
+	searchingData = createConnections(searchingData);
+	initialRender(searchingData);
+	addEdges(searchingData);
+	origin = 1;
+	target = searchingData[searchingData.length - 1];
+
+}
+
+function initialiseMaze(items) {
+	clearScreen();
+	algorithm = 'maze';
+	methodSelector.innerHTML = `
+		<option value="build">Build Maze</option>
+		<option value="solveBreadth">Solve Breadth First</option>;
+		<option value="solveDepth">Solve Depth First</option>`;
+	setItemSliderValues(100, 4225);
+
+	squareSize = Math.floor(Math.sqrt(items));
+	gridData = buildGrid(squareSize, squareSize);
+	gridData.forEach(arr => {
+		initialRender(arr)
+	});
+
 }
 
 function updateSpeed() {
 	timeToPause = (1 - (speedSlider.value / 100)) * maximumPause;
 }
 
-function refresh() {
-	clearScreen();
-	switch (algorithm) {
+function updateItems() {
+	switch(algorithm) {
 		case 'sorting':
-			width = (dataDivWidth - numberSlider.value) / numberSlider.value;
-			data = createRandomArray(numberSlider.value, 1, 100);
-			initialRender(data);
-			updateRender(data);
+			initialiseSorting(itemsSlider.value)
 			break;
 		case 'searching':
-			data = generateGraph(numberSlider.value);
-			data = createConnections(data);
-			initialRender(data);
-			addEdges(data);
-			origin = 1;
-			target = data[data.length - 1];
+			initialiseSearching(itemsSlider.value)
 			break;
 		case 'maze':
-			squares = Math.floor(Math.sqrt(numberSlider.value));
-			data = buildGrid(squares, squares);
-			data.forEach(arr => {
-				initialRender(arr)
-			});
+			initialiseMaze(itemsSlider.value)
 			break;
 	}
 }
+
 
 async function run() {
 	let func = methodSelector.options[methodSelector.selectedIndex].value;
@@ -125,55 +147,52 @@ async function run() {
 		case 'sorting':
 			switch (func) {
 				case 'bubble':
-					data = bubbleSort(data);
+					sortingData = bubbleSort(sortingData);
 					break;
-
 				case 'selection':
-					data = selectionSort(data);
+					sortingData = selectionSort(sortingData);
 					break;
-
 				case 'insertion':
-					data = insertionSort(data);
+					sortingData = insertionSort(sortingData);
 					break;
 				case 'quick':
-					data = quickSort(data, 0, data.length);
+					sortingData = quickSort(sortingData, 0, sortingData.length);
 					break;
 				case 'merge':
-					data = mergeSort(data);
+					data = mergeSort(sortingData);
 					break;
 			}
 			break;
 		case 'searching':
 			switch (func) {
 				case 'depth':
-					data = depthFirst(data, origin, target);
+					searchingData = depthFirst(searchingData, origin, target);
 					break;
 
 				case 'breadth':
-					data = breadthFirst(data, origin, target);
+					searchingData = breadthFirst(searchingData, origin, target);
 					break;
 			}
 			break;
 		case 'maze':
-			refresh()
 			switch (func) {
 				case 'build':
-					generateMaze(data, data[Math.floor(data.length / 2)][Math.floor(data[0].length / 2)], true)
+					generateMaze(gridData, gridData[Math.floor(gridData.length / 2)][Math.floor(gridData[0].length / 2)], true)
 					break;
 				case 'solveBreadth':
-					generateMaze(data, data[Math.floor(data.length / 2)][Math.floor(data[0].length / 2)], false)
-					traverseBreadthFirst(data[0][0], data[data.length - 1][data[0].length - 1]);
+					generateMaze(gridData, gridData[Math.floor(gridData.length / 2)][Math.floor(gridData[0].length / 2)], false)
+					traverseBreadthFirst(gridData[0][0], gridData[gridData.length - 1][gridData[0].length - 1]);
 					break;
 				case 'solveDepth':
-					generateMaze(data, data[Math.floor(data.length / 2)][Math.floor(data[0].length / 2)], false)
-					traverseDepthFirst(data[0][0], data[data.length - 1][data[0].length - 1]);
+					generateMaze(gridData, gridData[Math.floor(gridData.length / 2)][Math.floor(gridData[0].length / 2)], false)
+					traverseDepthFirst(gridData[0][0], gridData[gridData.length - 1][gridData[0].length - 1]);
 					break;
 				}
 			}
 
 }
 
-function updateRender(arr) {
+function updateSortingRender(arr) {
 	let totalWidth = arr.length * width;
 	let remainderWidth = dataDivWidth - totalWidth;
 	for (let i = 0; i < arr.length; i++) {
@@ -184,6 +203,7 @@ function updateRender(arr) {
 function clearScreen() {
 	dataDiv.innerHTML = '';
 	svg.innerHTML = '';
+	ctx.clearRect(0, 0, canvas.width + canvas.left, canvas.height + canvas.top)
 }
 
 async function sleep(time) {

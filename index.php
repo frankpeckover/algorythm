@@ -13,9 +13,9 @@
 <body>
     <div class="center header"><h1>Alogrithms</h1></div>
     <div class='center menu'>
-        <button onclick="setAlgorithm('sorting')">Sorting</button>
-        <button onclick="setAlgorithm('searching')">Searching</button>
-        <button onclick="setAlgorithm('maze')">Maze</button>
+        <button onclick="initialiseSorting(25)">Sorting</button>
+        <button onclick="initialiseSearching(5)">Searching</button>
+        <button onclick="initialiseMaze(100)">Maze</button>
     </div>
     <div class="center toolbox">
         <div class="center">
@@ -29,20 +29,22 @@
             <button style="margin-right: 5px;" onclick="run()">>>></button>
         </div>
         <div>
-            <label  id='numberLabel' class='slider-label' for="number">5</label>
-            <input oninput="refresh()" type="range" min="25" max="250" value="25" class="slider" id="number">
+            <label  id='numberLabel' class='slider-label' for="number">Items</label>
+            <input oninput="showSliderValue(itemsLabel, itemsSlider)" onchange="updateItems()" type="range" min="25" max="250" value="25" class="slider" id="number">
             <label style='margin-top: 10px' class='slider-label' for="number">Items</label>
         </div>
         <div>
-            <label id='speedLabel' class='slider-label'  for="speed">5</label>
-            <input onchange="updateSpeed()" type="range" min="1" max="100" value="50" class="slider" id="speed">
-            <label style='margin-top: 10px'  class='slider-label' for="speed">Speed (%)</label>
+            <label id='speedLabel' class='slider-label'  for="speed">50</label>
+            <input oninput="showSliderValue(speedLabel, speedSlider)" onchange="updateSpeed()" type="range" min="1" max="100" value="50" class="slider" id="speed">
+            <label style='margin-top: 10px' class='slider-label' for="speed">Speed (%)</label>
         </div>
     </div>
     <div class="main">
-        <div id="data" class="data"></div>
-        <svg id="svg">
-        </svg>
+        <canvas id="canvas" class='canvas'></canvas>
+        <div id="data" class="data">
+            <h1 style='text-align: center; position: absolute; width: 100%; top: 40%;'>WELCOME... PLEASE SELECT A METHOD</h1>
+        </div>
+        <svg id="svg"></svg>
     </div>
 </body>
 </html>

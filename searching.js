@@ -6,14 +6,11 @@ width = 50
 height = 50
 
 function addEdges(nodes) {
-	svg.innerHTML = `
-	<defs>
-		<marker id="mid" markerWidth="10" markerHeight="10" viewBox="-1 -1 2 2" orient="auto">
-			<path fill="blue" d="M-1,-1 L1,0 -1,1 z" />
-    	</marker>
-	</defs>`;
+	ctx.clearRect(0, 0, canvas.width + canvas.left, canvas.height + canvas.top)
 	nodes.forEach((node) => {
-		node.links.forEach((link) => {
+		node.links.forEach((connection) => {
+
+			link = connection.connectionNode;
 
 			nodeLeft = parseInt(node.view.style.left);
 			nodeTop = parseInt(node.view.style.top);
@@ -31,12 +28,13 @@ function addEdges(nodes) {
 	});
 }
 
-function drawLine(x1, y1, x2, y2) {
-	var line = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
-	line.setAttribute('points', `${x1},${y1} ${(x2 + x1) / 2},${(y2 + y1) / 2} ${x2},${y2}`);
-	line.setAttribute('stroke', 'black');
-	line.setAttribute('marker-mid', 'url(#mid)');
-	svg.appendChild(line);
+async function drawLine(x1, y1, x2, y2) {
+	ctx.beginPath();
+	ctx.lineWidth = 1;
+	ctx.moveTo(x1, y1);
+	ctx.lineTo(x2, y2);
+	ctx.stroke();
+	//ctx.fillText('text', (x2 - x1) / 2, (y2 - y1) / 2)
 }
 
 function generateGraph(numNodes) {
@@ -59,8 +57,10 @@ function createConnections(arr) {
 	newArray.forEach((node, i) => {
 		let numLinks = Math.floor(Math.random() * (newArray.length / 3));
 		while (node.links.length < numLinks) {
-			let connection = Math.floor(Math.random() * newArray.length);
-			if (node.links.indexOf(connection) === -1 && connection !== i) {
+			let connectionNode = Math.floor(Math.random() * newArray.length);
+			let connectionWeight = Math.floor(Math.random() * 10);
+			if (node.links.indexOf(connectionNode) === -1 && connectionNode !== i) {
+				connection = {connectionNode: connectionNode, connectionWeight: connectionWeight}
 				node.links.push(connection);
 			}
 		}
@@ -80,12 +80,12 @@ function setSearchable(i) {
             break;
     }
 
-    changeAllStyles(data, defaultColor);
+    changeAllStyles(searchingData, defaultColor);
     if (origin !== undefined) {
-        changeOneStyle(data, origin, specialColor);
+        changeOneStyle(searchingData, origin, specialColor);
     }
     if (target !== undefined) {
-        changeOneStyle(data, target, specialColor3);
+        changeOneStyle(searchingData, target, specialColor3);
     }
 }
 
@@ -105,9 +105,9 @@ async function breadthFirst(graph, origin, target) {
 			return true;
 		}
 		graph[index].visited = true;
-		graph[index].links.forEach((childIndex) => {
-			if (graph[childIndex].visited === false) {
-				queue.push(childIndex);
+		graph[index].links.forEach((link) => {
+			if (graph[link].visited === false) {
+				queue.push(link.connectionNode);
 			}
 		});
 		await sleep(timeToPause);
@@ -121,20 +121,21 @@ async function depthFirst(graph, origin, target) {
 	graph[origin].visited = true;
 
 	while (stack.length > 0) {
-		let index = stack.pop();
+		let currentNode = stack.pop();
 		graph[origin].view.style.zIndex = 100;
 		graph[origin].view.style.transform = `translate(
-			${graph[index].view.offsetLeft - graph[origin].view.offsetLeft}px,
-			${graph[index].view.offsetTop - graph[origin].view.offsetTop}px)`;
+			${graph[currentNode].view.offsetLeft - graph[origin].view.offsetLeft}px,
+			${graph[currentNode].view.offsetTop - graph[origin].view.offsetTop}px)`;
 		await sleep(1000);
-		if (index === target) {
+		if (currentNode === target) {
 			alert(`Found index: ${target} from ${origin}`);
 			return true;
 		}
-		graph[index].visited = true;
-		graph[index].links.forEach((child) => {
-			if (graph[child].visited === false) {
-				stack.push(child);
+		graph[currentNode].visited = true;
+		graph[currentNode].links.forEach((link) => {
+			console.log(link)
+			if (link.visited === false) {
+				stack.push(link.connectionNode);
 			}
 		});
 		await sleep(timeToPause);
@@ -142,5 +143,3 @@ async function depthFirst(graph, origin, target) {
 	alert(`No path to index: ${target} from ${origin}`);
 	return false;
 }
-
-//#endregion

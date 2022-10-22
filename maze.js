@@ -8,14 +8,14 @@ function buildGrid(rows, cols) {
     totalCols = cols;
     cellWidth = (dataDivHeight * aspect) / cols;
     cellHeight = (dataDivHeight * aspect) / rows;
-    var arr = [];
+    var grid = [];
     for (let row = 0; row <= rows - 1; row++){
-        arr[row] = [];
+        grid[row] = [];
         for (let col = 0; col <= cols - 1; col++) {
-            arr[row][col] = createCell(row, col, cellWidth, cellHeight);
+            grid[row][col] = createCell(row, col, cellWidth, cellHeight);
         }
     }
-    return arr
+    return grid
 }
 
 function createCell(row, col, cellWidth, cellHeight) {
@@ -29,27 +29,27 @@ function createCell(row, col, cellWidth, cellHeight) {
 
     view.classList = 'mazeElement element center';
     view.onclick = function() {
-        console.log(data[row][col]);
+        console.log(gridData[row][col]);
     }
 
-    cell = {visited: false, links: [], row: row, col: col, view: view}
+    cell = {visited: false, links: [], row: row, col: col, view: view, prev: undefined}
 
     return cell
 }
 
 function getUnvisitedNeighbours(grid, currentCell) {
     directions = [[0, 1], [1, 0], [0, -1], [-1, 0]]
-    tempArr = []
+    unvisNeighbours = []
     directions.forEach(direction => {
         x = direction[0];
         y = direction[1];
         if ((currentCell.row + x) >= 0 && (currentCell.col + y) >= 0 && (currentCell.row + x) < grid.length && (currentCell.col + y) < grid[0].length) {
             if (grid[currentCell.row + x][currentCell.col + y].visited === false) {
-                tempArr.push(grid[currentCell.row + x][currentCell.col + y]);
+                unvisNeighbours.push(grid[currentCell.row + x][currentCell.col + y]);
             }    
         }   
     })
-    return tempArr
+    return unvisNeighbours
 }
 
 function removeWall(currentCell, nextCell) {
@@ -82,10 +82,18 @@ function removeWall(currentCell, nextCell) {
     }
 }
 
-function setVisited(grid, value) {
+function setAllVisited(grid, value) {
     grid.forEach(row => {
         row.forEach(cell => {
             cell.visited = value;
+        })
+    })
+}
+
+function removeColor(grid) {
+    grid.forEach(row => {
+        row.forEach(cell => {
+            cell.view.style.background = 'white';
         })
     })
 }
@@ -110,7 +118,7 @@ async function generateMaze(grid, origin, simulating) {
             nextCell.links.push(currentCell);
         }
 	}
-    setVisited(grid, false);
+    setAllVisited(grid, false);
 	return false;
 }
 
@@ -124,20 +132,25 @@ async function traverseDepthFirst(origin, target) {
         currentCell.view.style.background = specialColor3;
 		await sleep(timeToPause);
 		if (currentCell === target) {
-			alert(`Found index: ${target} from ${origin}`);
-			return true;
+            removeColor(gridData)
+            origin.view.style.background = 'green';
+            while (currentCell.prev != undefined || currentCell.prev != null) {
+                currentCell.view.style.background = 'green';
+                currentCell = currentCell.prev;
+                await sleep(timeToPause);
+            }
+            return true;
 		}
 		currentCell.visited = true;
         if (currentCell.links.length) {
             currentCell.links.forEach(link => {
                 if (link.visited === false) {
+                    link.prev = currentCell;
                     stack.push(link);
                 }
             });
         }
-        currentCell.view.style.background = defaultColor;
 	}
-    alert(`could not find end`)
 	return false;
 }
 
@@ -151,16 +164,22 @@ async function traverseBreadthFirst(origin, target) {
         currentCell.view.style.background = specialColor3;
 		await sleep(timeToPause);
 		if (currentCell === target) {
-			alert(`Found index: ${target} from ${origin}`);
-			return true;
+            removeColor(gridData)
+            origin.view.style.background = 'green';
+            while (currentCell.prev != undefined || currentCell.prev != null) {
+                currentCell.view.style.background = 'green';
+                currentCell = currentCell.prev;
+                await sleep(timeToPause);
+            }
+            return true;
 		}
 		currentCell.visited = true;
-		currentCell.links.forEach((childIndex) => {
-			if (childIndex.visited === false) {
-				queue.push(childIndex);
+		currentCell.links.forEach((link) => {
+			if (link.visited === false) {
+                link.prev = currentCell;
+				queue.push(link);
 			}
 		});
 	}
-	alert(`No path to index: ${target} from ${origin}`);
 	return false;
 }
